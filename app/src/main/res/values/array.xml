@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="city">
+        <item>Обнинск</item>
+        <item>Москва</item>
+        <item>Ялта</item>
+        <item>Севастополь</item>
+        <item>Ставрополь</item>
+        <item>Тула</item>
+        <item>Калуга</item>
+        <item>Ростов</item>
+        <item>Брацк</item>
+        <item>Киров</item>
+        <item>Уфа</item>
+    </string-array>
+    <array name="pictures">
+        <item>@drawable/ic_sunny2</item>
+        <item>@drawable/ic_cloudy2</item>
+    </array>
+</resources>

@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">GardenWeather3</string>
+    <string name="current_temp">10\u00B0</string>
+    <string name="current_city">Обнинск</string>
+    <string name="text_dynamic">text</string>
+    <string name="image_desc">image</string>
+
+    <string name="locate_title">Использовать GPS/Глонас</string>
+    <string name="attachment_summary_on">Город определяется автоматически</string>
+    <string name="attachment_summary_off">Город не будет определяться автоматически</string>
+    <string name="messages_add">Дополнительно</string>
+    <string name="findCity">Поиск города</string>
+    <string name="current_week">Понедельник</string>
+    <string name="action_settings">Настройки</string>
+    <string name="list_city">Сменить город</string>
+
+</resources>
