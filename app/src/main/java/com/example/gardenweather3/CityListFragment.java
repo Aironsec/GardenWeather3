@@ -1,7 +1,6 @@
 package com.example.gardenweather3;
 
 import android.os.Bundle;
-import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +20,14 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.regex.Pattern;
 
+interface AfterTextChangedWatcher extends TextWatcher {
+    default void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+    }
+
+    default void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+    }
+}
+
 public class CityListFragment extends Fragment {
     private ViewModelData modelData;
     private Pattern checkCity = Pattern.compile("[a-zA-Z]*");
@@ -28,7 +35,7 @@ public class CityListFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        modelData = ViewModelProviders.of(getActivity()).get(ViewModelData.class);
+        modelData = ViewModelProviders.of(requireActivity()).get(ViewModelData.class);
     }
 
     private void initRecycleCityList(DataSourceTextPicTemp sourceData, View view) {
@@ -39,7 +46,7 @@ public class CityListFragment extends Fragment {
         AdapterCityList adapter = new AdapterCityList(sourceData);
         recyclerView.setAdapter(adapter);
 
-        DividerItemDecoration itemDecoration = new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL);
+        DividerItemDecoration itemDecoration = new DividerItemDecoration(requireActivity(), LinearLayoutManager.VERTICAL);
         itemDecoration.setDrawable(getResources().getDrawable(R.drawable.separator));
         recyclerView.addItemDecoration(itemDecoration);
 
@@ -50,14 +57,13 @@ public class CityListFragment extends Fragment {
             TextView textView = view1.findViewById(R.id.textView_city);
 
             modelData.setCity(textView.getText().toString());
+
             Snackbar.make(textView, "Город изменён", Snackbar.LENGTH_LONG)
-                    .setAction("Отменить", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            TempData td = TempData.getInstance();
-                            modelData.setCity(td.getTempStr());
-                        }
-                    }).show();
+                    .setAction("Отменить",
+                            v -> {
+                                TempData td = TempData.getInstance();
+                                modelData.setCity(td.getTempStr());
+                            }).show();
 
         });
     }
@@ -71,38 +77,23 @@ public class CityListFragment extends Fragment {
         initRecycleCityList(sourceData.buildCityList(), view);
 
         TextInputEditText textInput = view.findViewById(R.id.inputCity);
-        textInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                TextView tv = textInput;
-                validate(tv, checkCity, "Только латинские буквы!!");
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
+        textInput.addTextChangedListener(
+                (AfterTextChangedWatcher) editable -> CityListFragment.this.validate(textInput, checkCity));
 
         return view;
     }
 
-    private void validate(TextView tv, Pattern check, String message) {
+    private void validate(TextView tv, Pattern check) {
         String value = tv.getText().toString();
         if (check.matcher(value).matches()) {
             hideError(tv);
         } else {
-            showError(tv, message);
+            showError(tv);
         }
     }
 
-    private void showError(TextView view, String message) {
-        view.setError(message);
+    private void showError(TextView view) {
+        view.setError("Только латинские буквы!!");
     }
 
     private void hideError(TextView view) {

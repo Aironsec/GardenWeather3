@@ -6,13 +6,16 @@ import androidx.core.view.ViewCompat;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity
         implements AppBarLayout.OnOffsetChangedListener {
@@ -20,19 +23,23 @@ public class MainActivity extends AppCompatActivity
     private View mFab;
     private int mMaxScrollSize;
     private boolean mIsImageHidden;
-    private boolean isSetting;
-    private boolean isListCity;
+//    private boolean isSetting;
+//    private boolean isListCity;
     private Toolbar toolbar;
-    private ViewModelData modelData;
     CollapsingToolbarLayout colaps;
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        modelData = ViewModelProviders.of(this).get(ViewModelData.class);
+        ViewModelData modelData = ViewModelProviders.of(this).get(ViewModelData.class);
         modelData.getCity().observe(this, s -> {
             colaps = findViewById(R.id.activity_collapsing);
             colaps.setTitle(s);
+        });
+        modelData.getData().observe(this, wd -> {
+            TextView textView = findViewById(R.id.tempDay);
+            textView.setText("" + wd.getCurrent().getTemp());
         });
         SharedPreferences sharedPref = getSharedPreferences("com.example.gardenweather3_preferences", MODE_PRIVATE);
         if (sharedPref.getBoolean("theme", false)) {
@@ -48,7 +55,7 @@ public class MainActivity extends AppCompatActivity
 
             colaps = findViewById(R.id.activity_collapsing);
             TempData td = TempData.getInstance();
-            td.setTempStr(colaps.getTitle().toString());
+            td.setTempStr(Objects.requireNonNull(colaps.getTitle()).toString());
 
             getSupportFragmentManager()
                     .beginTransaction()
@@ -59,8 +66,7 @@ public class MainActivity extends AppCompatActivity
         });
 
         toolbar.setNavigationOnClickListener(v -> {
-            if (!isSetting) {
-                isSetting = true;
+
                 toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_ios_24);
                 getSupportFragmentManager()
                         .beginTransaction()
@@ -68,11 +74,6 @@ public class MainActivity extends AppCompatActivity
                         .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                         .replace(R.id.frame_dynamic, new SettingsFragment())
                         .commit();
-            } else {
-                isSetting = false;
-                toolbar.setNavigationIcon(R.drawable.ic_baseline_settings_24);
-                onBackPressed();
-            }
         });
 
         AppBarLayout appbar = findViewById(R.id.activity_appbar);

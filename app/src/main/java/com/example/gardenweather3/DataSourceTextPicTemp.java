@@ -1,5 +1,6 @@
 package com.example.gardenweather3;
 
+import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 
@@ -46,7 +47,7 @@ public class DataSourceTextPicTemp {
     }
 
     private int[] getPicArr() {
-        TypedArray pic = resources.obtainTypedArray(R.array.pictures);
+        @SuppressLint("Recycle") TypedArray pic = resources.obtainTypedArray(R.array.pictures);
         int length = pic.length();
         int[] ans = new int[CLOCK];
         for (int i = 0; i < CLOCK; i++) {
