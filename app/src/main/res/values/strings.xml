@@ -11,7 +11,12 @@
     <string name="messages_add">Дополнительно</string>
     <string name="findCity">Поиск города</string>
     <string name="current_week">Понедельник</string>
-    <string name="action_settings">Настройки</string>
-    <string name="list_city">Сменить город</string>
+    <string name="settings">Настройки</string>
+    <string name="list_city">Города</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="author">Сергей Ткаченко</string>
+    <string name="weather">Погода</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
 
 </resources>
