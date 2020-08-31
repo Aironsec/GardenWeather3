@@ -53,7 +53,6 @@ public class AdapterCityList extends RecyclerView.Adapter<AdapterCityList.ViewHo
             textTitle = itemView.findViewById(R.id.textView_city);
             pic = itemView.findViewById(R.id.imageView1);
             temp = itemView.findViewById(R.id.textView2);
-//            LinearLayout lineCity = itemView.findViewById(R.id.liner1);
 
             itemView.setOnClickListener(v -> {
                 if (itemClickListener != null) {

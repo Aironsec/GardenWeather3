@@ -21,12 +21,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        boolean ch = sharedPref.getBoolean("theme", false);
-        if (ch) {
-            Objects.requireNonNull(getActivity()).setTheme(R.style.AppLiteTheme);
+        boolean statusTheme = sharedPref.getBoolean("theme", false);
+        if (statusTheme) {
+            requireActivity().setTheme(R.style.AppLiteTheme);
         } else {
-            Objects.requireNonNull(getActivity()).setTheme(R.style.AppDarkTheme);
+            requireActivity().setTheme(R.style.AppDarkTheme);
         }
-        if (chTheme != ch) getActivity().recreate();
+        if (chTheme != statusTheme) requireActivity().recreate();
     }
 }

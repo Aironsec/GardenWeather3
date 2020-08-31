@@ -76,9 +76,9 @@ public class CityListFragment extends Fragment {
         DataSourceTextPicTemp sourceData = new DataSourceTextPicTemp(getResources());
         initRecycleCityList(sourceData.buildCityList(), view);
 
-        TextInputEditText textInput = view.findViewById(R.id.inputCity);
-        textInput.addTextChangedListener(
-                (AfterTextChangedWatcher) editable -> CityListFragment.this.validate(textInput, checkCity));
+//        TextInputEditText textInput = view.findViewById(R.id.inputCity);
+//        textInput.addTextChangedListener(
+//                (AfterTextChangedWatcher) editable -> CityListFragment.this.validate(textInput, checkCity));
 
         return view;
     }
