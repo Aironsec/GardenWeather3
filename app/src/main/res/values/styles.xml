@@ -9,10 +9,6 @@
 
     <style name="AppLiteTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar"/>
 
-    <style name="ToolBarWithNavigationSettings">
-        <item name="navigationIcon">@drawable/ic_baseline_settings_24</item>
-    </style>
-
     <style name="style_text_hours">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>

@@ -4,7 +4,6 @@ import com.example.gardenweather3.model.WeatherData;
 
 public class TempData {
     private String tempStr;
-    private WeatherData weatherData;
 
     private TempData(){}
 

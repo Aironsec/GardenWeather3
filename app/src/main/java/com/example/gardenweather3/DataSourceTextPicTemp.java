@@ -9,18 +9,18 @@ import java.util.List;
 
 public class DataSourceTextPicTemp {
     private final int CLOCK = 24;
-    private List<ItemTextPicTemp> DataSource;
+    private List<ItemTextPicTemp> dataSource;
     private Resources resources;
 
     public DataSourceTextPicTemp(Resources resources) {
-        DataSource = new ArrayList<>();
+        dataSource = new ArrayList<>();
         this.resources = resources;
     }
 
     public DataSourceTextPicTemp buildLineByClock() {
         int[] pic = getPicArr();
         for (int i = 0; i < CLOCK; i++) {
-            DataSource.add(new ItemTextPicTemp(i + "", pic[i], rnd(25) + "\u00B0"));
+            dataSource.add(new ItemTextPicTemp(i + "", pic[i], rnd(25) + "\u00B0"));
         }
         return this;
     }
@@ -29,17 +29,17 @@ public class DataSourceTextPicTemp {
         int[] pic = getPicArr();
         String[] city = resources.getStringArray(R.array.city);
         for (int i = 0; i < city.length; i++) {
-            DataSource.add(new ItemTextPicTemp(city[i], pic[i], rnd(30) + "\u00B0"));
+            dataSource.add(new ItemTextPicTemp(city[i], pic[i], rnd(30) + "\u00B0"));
         }
         return this;
     }
 
     public ItemTextPicTemp getItemTextPicTemp(int pos) {
-        return DataSource.get(pos);
+        return dataSource.get(pos);
     }
 
     public int size() {
-        return DataSource.size();
+        return dataSource.size();
     }
 
     public int rnd(int max) {
@@ -47,7 +47,8 @@ public class DataSourceTextPicTemp {
     }
 
     private int[] getPicArr() {
-        @SuppressLint("Recycle") TypedArray pic = resources.obtainTypedArray(R.array.pictures);
+        @SuppressLint("Recycle")
+        TypedArray pic = resources.obtainTypedArray(R.array.pictures);
         int length = pic.length();
         int[] ans = new int[CLOCK];
         for (int i = 0; i < CLOCK; i++) {

@@ -1,32 +1,44 @@
 package com.example.gardenweather3;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity
         implements AppBarLayout.OnOffsetChangedListener {
@@ -39,7 +51,6 @@ public class MainActivity extends AppCompatActivity
     private final String CELCIA = "\u00B0";
     private NavigationView navigationView;
     private DrawerLayout drawer;
-    private AppBarConfiguration mAppBarConfiguration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,102 +63,53 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.activity_toolbar);
         setSupportActionBar(toolbar);
 
-
         mFab = findViewById(R.id.activity_fab);
-
-        mFab.setOnClickListener(view -> {
-
-            colaps = findViewById(R.id.activity_collapsing);
-            TempData td = TempData.getInstance();
-            td.setTempStr(Objects.requireNonNull(colaps.getTitle()).toString());
-
-            showCityListFragment();
-        });
+        setOnClickForFab();
 
         drawer = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
 
-        mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_list_city, R.id.nav_settings)
-                .setDrawerLayout(drawer)
-                .build();
-        NavController navController = Navigation.findNavController(this, R.id.frame_dynamic);
-        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
-        NavigationUI.setupWithNavController(navigationView, navController);
-//        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-//                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-//        drawer.addDrawerListener(toggle);
-//        toggle.syncState();
-//
-//        showMainFragment();
-//        setOnClickForSideMenuItems();
-//        toolbar.setNavigationOnClickListener(v -> {
-//
-//            toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_ios_24);
-//            showSettingFragment();
-//        });
-//        AppBarLayout appbar = findViewById(R.id.activity_appbar);
-//        appbar.addOnOffsetChangedListener(this);
-//        getSupportFragmentManager()
-//                .beginTransaction()
-//                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-//                .replace(R.id.frame_dynamic, new MainFragment())
-//                .commit();
-        new UploadWeather(this);
-    }
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
 
-//    private void setOnClickForSideMenuItems() {
-//        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-//            @Override
-//            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-//                switch (item.getItemId()) {
-//                    case R.id.nav_home: {
-//                        showMainFragment();
-//                        drawer.closeDrawers();
-//                        break;
-//                    }
-//                    case R.id.nav_list_city: {
-//                        showCityListFragment();
-//                        drawer.closeDrawers();
-//                        break;
-//                    }
-//                    case R.id.nav_settings: {
-//                        showSettingFragment();
-//                        drawer.closeDrawers();
-//                        break;
-//                    }
-//                }
-//                return true;
-//            }
-//        });
-//    }
+        showMainFragment();
+        navigationView.setCheckedItem(R.id.nav_home);
 
-//    private void showMainFragment() {
-//        setFragment(new MainFragment());
-//    }
+        setOnClickForSideMenuItems();
 
-    private void showCityListFragment() {
-        setFragment(new CityListFragment());
-    }
+        AppBarLayout appbar = findViewById(R.id.activity_appbar);
+        appbar.addOnOffsetChangedListener(this);
+// TODO: 31.08.2020 реализовать через слушателя
+        UploadWeather uploadWeather = new UploadWeather(this);
+        try {
+            if (!uploadWeather.upload()){
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Ошибка соединения")
+                        .setMessage("Не удачная попытка загрузить данные о погоде.\nХотите повторить?")
+                        .setCancelable(false)
+                        .setNegativeButton("Нет", null)
+                        .setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                try {
+                                    uploadWeather.upload();
+                                } catch (ExecutionException | InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
 
-    private void showSettingFragment() {
-        setFragment(new SettingsFragment());
-    }
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
 
-    private void setFragment(Fragment fragment) {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .addToBackStack(null)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                .replace(R.id.frame_dynamic, fragment)
-                .commit();
-    }
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.frame_dynamic);
-        return NavigationUI.navigateUp(navController, mAppBarConfiguration)
-                || super.onSupportNavigateUp();
+
     }
 
     @Override
@@ -160,6 +122,96 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         menuItemClick(item);
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onOffsetChanged(AppBarLayout appBarLayout, int i) {
+        if (mMaxScrollSize == 0)
+            mMaxScrollSize = appBarLayout.getTotalScrollRange();
+
+        int currentScrollPercentage = (Math.abs(i)) * 100
+                / mMaxScrollSize;
+
+        if (currentScrollPercentage >= PERCENTAGE_TO_SHOW_IMAGE) {
+            if (!mIsImageHidden) {
+                mIsImageHidden = true;
+
+                ViewCompat.animate(mFab).scaleY(0).scaleX(0).start();
+            }
+        }
+
+        if (currentScrollPercentage < PERCENTAGE_TO_SHOW_IMAGE) {
+            if (mIsImageHidden) {
+                mIsImageHidden = false;
+                ViewCompat.animate(mFab).scaleY(1).scaleX(1).start();
+            }
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    private void setOnClickForFab() {
+        mFab.setOnClickListener(view -> {
+            colaps = findViewById(R.id.activity_collapsing);
+            TempData td = TempData.getInstance();
+            td.setTempStr(Objects.requireNonNull(colaps.getTitle()).toString());
+            showCityListFragment();
+        });
+    }
+
+    private void setOnClickForSideMenuItems() {
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.nav_home: {
+                        showMainFragment();
+                        drawer.closeDrawers();
+                        break;
+                    }
+                    case R.id.nav_list_city: {
+                        showCityListFragment();
+                        drawer.closeDrawers();
+                        break;
+                    }
+                    case R.id.nav_settings: {
+                        showSettingFragment();
+                        drawer.closeDrawers();
+                        break;
+                    }
+                }
+                drawer.closeDrawer(GravityCompat.START);
+                return true;
+            }
+        });
+    }
+
+    private void showMainFragment() {
+        setFragment(new MainFragment());
+    }
+
+    private void showCityListFragment() {
+        setFragment(new CityListFragment());
+    }
+
+    private void showSettingFragment() {
+        setFragment(new SettingsFragment());
+    }
+
+    private void setFragment(Fragment fragment) {
+        getSupportFragmentManager()
+                .beginTransaction()
+//                .addToBackStack(null)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                .replace(R.id.frame_dynamic, fragment)
+                .commit();
     }
 
     private void menuItemClick(MenuItem item) {
@@ -209,28 +261,33 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
-    @Override
-    public void onOffsetChanged(AppBarLayout appBarLayout, int i) {
-        if (mMaxScrollSize == 0)
-            mMaxScrollSize = appBarLayout.getTotalScrollRange();
+    // TODO: 30.08.2020 перенести в CityListFragment
+    public void show_find_city(View view) {
+        LinearLayout llBottomSheet = findViewById(R.id.dialog_bottom_sheet);
+        BottomSheetBehavior<View> bottomSheetBehavior = BottomSheetBehavior.from(llBottomSheet);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
-        int currentScrollPercentage = (Math.abs(i)) * 100
-                / mMaxScrollSize;
+        String[] city = getResources().getStringArray(R.array.city);
+        ArrayList<String> tempArray = new ArrayList<>(Arrays.asList(city));
+        initRecycleSearchCityList(tempArray, bottomSheetBehavior);
+    }
 
-        if (currentScrollPercentage >= PERCENTAGE_TO_SHOW_IMAGE) {
-            if (!mIsImageHidden) {
-                mIsImageHidden = true;
+    // TODO: 31.08.2020 почему не отображается список???
+    private void initRecycleSearchCityList(ArrayList<String> sourceData, BottomSheetBehavior<View> bottomSheetBehavior) {
+        RecyclerView recyclerView = findViewById(R.id.find_city_list);
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        AdapterSearchCityList adapter = new AdapterSearchCityList(sourceData);
+        recyclerView.setAdapter(adapter);
 
-                ViewCompat.animate(mFab).scaleY(0).scaleX(0).start();
-            }
-        }
+        adapter.SetOnItemClickListener((view, position) -> {
+            TextView textView = view.findViewById(R.id.city_name);
 
-        if (currentScrollPercentage < PERCENTAGE_TO_SHOW_IMAGE) {
-            if (mIsImageHidden) {
-                mIsImageHidden = false;
-                ViewCompat.animate(mFab).scaleY(1).scaleX(1).start();
-            }
-        }
+            modelData.setCity(textView.getText().toString());
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+
+        });
     }
 
 }
