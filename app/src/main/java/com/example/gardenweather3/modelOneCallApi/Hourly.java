@@ -1,27 +1,21 @@
 
-package com.example.gardenweather3.model;
+package com.example.gardenweather3.modelOneCallApi;
 
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Daily {
+public class Hourly {
 
     @SerializedName("dt")
     @Expose
     private Integer dt;
-    @SerializedName("sunrise")
-    @Expose
-    private Integer sunrise;
-    @SerializedName("sunset")
-    @Expose
-    private Integer sunset;
     @SerializedName("temp")
     @Expose
-    private Temp temp;
+    private Double temp;
     @SerializedName("feels_like")
     @Expose
-    private FeelsLike feelsLike;
+    private Double feelsLike;
     @SerializedName("pressure")
     @Expose
     private Integer pressure;
@@ -31,6 +25,12 @@ public class Daily {
     @SerializedName("dew_point")
     @Expose
     private Double dewPoint;
+    @SerializedName("clouds")
+    @Expose
+    private Integer clouds;
+    @SerializedName("visibility")
+    @Expose
+    private Integer visibility;
     @SerializedName("wind_speed")
     @Expose
     private Double windSpeed;
@@ -39,19 +39,13 @@ public class Daily {
     private Integer windDeg;
     @SerializedName("weather")
     @Expose
-    private List<Weather__> weather = null;
-    @SerializedName("clouds")
-    @Expose
-    private Integer clouds;
+    private List<Weather_> weather = null;
     @SerializedName("pop")
     @Expose
     private Double pop;
     @SerializedName("rain")
     @Expose
-    private Double rain;
-    @SerializedName("uvi")
-    @Expose
-    private Double uvi;
+    private Rain rain;
 
     public Integer getDt() {
         return dt;
@@ -61,35 +55,19 @@ public class Daily {
         this.dt = dt;
     }
 
-    public Integer getSunrise() {
-        return sunrise;
-    }
-
-    public void setSunrise(Integer sunrise) {
-        this.sunrise = sunrise;
-    }
-
-    public Integer getSunset() {
-        return sunset;
-    }
-
-    public void setSunset(Integer sunset) {
-        this.sunset = sunset;
-    }
-
-    public Temp getTemp() {
+    public Double getTemp() {
         return temp;
     }
 
-    public void setTemp(Temp temp) {
+    public void setTemp(Double temp) {
         this.temp = temp;
     }
 
-    public FeelsLike getFeelsLike() {
+    public Double getFeelsLike() {
         return feelsLike;
     }
 
-    public void setFeelsLike(FeelsLike feelsLike) {
+    public void setFeelsLike(Double feelsLike) {
         this.feelsLike = feelsLike;
     }
 
@@ -117,6 +95,22 @@ public class Daily {
         this.dewPoint = dewPoint;
     }
 
+    public Integer getClouds() {
+        return clouds;
+    }
+
+    public void setClouds(Integer clouds) {
+        this.clouds = clouds;
+    }
+
+    public Integer getVisibility() {
+        return visibility;
+    }
+
+    public void setVisibility(Integer visibility) {
+        this.visibility = visibility;
+    }
+
     public Double getWindSpeed() {
         return windSpeed;
     }
@@ -133,20 +127,12 @@ public class Daily {
         this.windDeg = windDeg;
     }
 
-    public List<Weather__> getWeather() {
+    public List<Weather_> getWeather() {
         return weather;
     }
 
-    public void setWeather(List<Weather__> weather) {
+    public void setWeather(List<Weather_> weather) {
         this.weather = weather;
-    }
-
-    public Integer getClouds() {
-        return clouds;
-    }
-
-    public void setClouds(Integer clouds) {
-        this.clouds = clouds;
     }
 
     public Double getPop() {
@@ -157,20 +143,12 @@ public class Daily {
         this.pop = pop;
     }
 
-    public Double getRain() {
+    public Rain getRain() {
         return rain;
     }
 
-    public void setRain(Double rain) {
+    public void setRain(Rain rain) {
         this.rain = rain;
-    }
-
-    public Double getUvi() {
-        return uvi;
-    }
-
-    public void setUvi(Double uvi) {
-        this.uvi = uvi;
     }
 
 }

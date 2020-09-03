@@ -5,6 +5,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -15,9 +16,12 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 interface AfterTextChangedWatcher extends TextWatcher {
@@ -76,11 +80,38 @@ public class CityListFragment extends Fragment {
         DataSourceTextPicTemp sourceData = new DataSourceTextPicTemp(getResources());
         initRecycleCityList(sourceData.buildCityList(), view);
 
+        view.findViewById(R.id.show_bottom_sheet).setOnClickListener(view1 -> {
+            LinearLayout llBottomSheet = getActivity().findViewById(R.id.dialog_bottom_sheet);
+            BottomSheetBehavior<View> bottomSheetBehavior = BottomSheetBehavior.from(llBottomSheet);
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+
+            String[] city = getResources().getStringArray(R.array.city);
+            ArrayList<String> tempArray = new ArrayList<>(Arrays.asList(city));
+            initRecycleSearchCityList(tempArray, bottomSheetBehavior);
+        });
+
 //        TextInputEditText textInput = view.findViewById(R.id.inputCity);
 //        textInput.addTextChangedListener(
 //                (AfterTextChangedWatcher) editable -> CityListFragment.this.validate(textInput, checkCity));
 
         return view;
+    }
+
+    private void initRecycleSearchCityList(ArrayList<String> sourceData, BottomSheetBehavior<View> bottomSheetBehavior) {
+        RecyclerView recyclerView = getActivity().findViewById(R.id.find_city_list);
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(layoutManager);
+        AdapterSearchCityList adapter = new AdapterSearchCityList(sourceData);
+        recyclerView.setAdapter(adapter);
+
+        adapter.SetOnItemClickListener((view1, position) -> {
+            TextView textView = view1.findViewById(R.id.city_name);
+
+            modelData.setCity(textView.getText().toString());
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+
+        });
     }
 
     private void validate(TextView tv, Pattern check) {

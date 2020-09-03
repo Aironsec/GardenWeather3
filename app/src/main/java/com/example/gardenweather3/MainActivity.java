@@ -1,16 +1,20 @@
 package com.example.gardenweather3;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,26 +23,17 @@ import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.gardenweather3.modelCurrentWeatherData.CurrentWeatherData;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.Date;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity
         implements AppBarLayout.OnOffsetChangedListener {
@@ -46,12 +41,17 @@ public class MainActivity extends AppCompatActivity
     private View mFab;
     private int mMaxScrollSize;
     private boolean mIsImageHidden;
-    private CollapsingToolbarLayout colaps;
+    private CollapsingToolbarLayout colapsCityName;
     protected ViewModelData modelData;
     private final String CELCIA = "\u00B0";
     private NavigationView navigationView;
     private DrawerLayout drawer;
+    static final String BROADCAST_ACTION_WEATHER_LOAD =
+            "broadcast_action_weather_load";
+    static final String BROADCAST_ACTION_WEATHER_PARSING =
+            "broadcast_action_weather_parsing";
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,41 +75,29 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
 
         showMainFragment();
-        navigationView.setCheckedItem(R.id.nav_home);
 
         setOnClickForSideMenuItems();
 
         AppBarLayout appbar = findViewById(R.id.activity_appbar);
         appbar.addOnOffsetChangedListener(this);
-// TODO: 31.08.2020 реализовать через слушателя
-        UploadWeather uploadWeather = new UploadWeather(this);
-        try {
-            if (!uploadWeather.upload()){
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Ошибка соединения")
-                        .setMessage("Не удачная попытка загрузить данные о погоде.\nХотите повторить?")
-                        .setCancelable(false)
-                        .setNegativeButton("Нет", null)
-                        .setPositiveButton("Да", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                try {
-                                    uploadWeather.upload();
-                                } catch (ExecutionException | InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
 
-                AlertDialog alert = builder.create();
-                alert.show();
-            }
+        colapsCityName = findViewById(R.id.activity_collapsing);
+        LoadWeatherService.startLoadWeatherService(MainActivity.this, colapsCityName.getTitle().toString());
 
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-        }
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        registerReceiver(LoadWeatherFinishedReceiver, new IntentFilter(BROADCAST_ACTION_WEATHER_LOAD));
+        registerReceiver(ParsingFinishedReceiver, new IntentFilter(BROADCAST_ACTION_WEATHER_PARSING));
+    }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(LoadWeatherFinishedReceiver);
+        unregisterReceiver(ParsingFinishedReceiver);
     }
 
     @Override
@@ -157,11 +145,56 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    private BroadcastReceiver LoadWeatherFinishedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String result = intent.getStringExtra(LoadWeatherService.EXTRA_RESULT);
+
+            if (LoadWeatherService.FAIL_CONNECTION.equals(result)) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle(R.string.error_head)
+                        .setMessage(R.string.error_msg)
+                        .setCancelable(false)
+                        .setNegativeButton("Нет", null)
+                        .setPositiveButton("Да", (dialogInterface, i) -> {
+                            LoadWeatherService.startLoadWeatherService(MainActivity.this, colapsCityName.getTitle().toString());
+                        });
+
+                AlertDialog alert = builder.create();
+                alert.show();
+            } else {
+                ParsingWeatherService.startParsingWeatherService(MainActivity.this, result);
+            }
+        }
+    };
+
+    private BroadcastReceiver ParsingFinishedReceiver = new BroadcastReceiver() {
+        @SuppressLint("SetTextI18n")
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            CurrentWeatherData sourceData = TempData.getInstance().getWeatherData();
+            Date date = new Date((long) sourceData.getDt() * 1000);
+            TextView currentTemp = findViewById(R.id.currentTemp);
+            TextView tempDay = findViewById(R.id.tempDay);
+            TextView tempNight = findViewById(R.id.tempNight);
+            TextView currentDayWeek = findViewById(R.id.currentDayWeek);
+
+            @SuppressLint("SimpleDateFormat")
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE");
+            // Потокобезопасный вывод данных
+            runOnUiThread(() -> {
+                currentTemp.setText(sourceData.getMain().getTemp().intValue() + CELCIA);
+                tempDay.setText(sourceData.getMain().getTemp().intValue() + CELCIA);
+                currentDayWeek.setText(dateFormat.format(date));
+            });
+        }
+    };
+
     private void setOnClickForFab() {
         mFab.setOnClickListener(view -> {
-            colaps = findViewById(R.id.activity_collapsing);
+            colapsCityName = findViewById(R.id.activity_collapsing);
             TempData td = TempData.getInstance();
-            td.setTempStr(Objects.requireNonNull(colaps.getTitle()).toString());
+            td.setTempStr(Objects.requireNonNull(colapsCityName.getTitle()).toString());
             showCityListFragment();
         });
     }
@@ -194,21 +227,24 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void showMainFragment() {
+        navigationView.setCheckedItem(R.id.nav_home);
         setFragment(new MainFragment());
     }
 
     private void showCityListFragment() {
+        navigationView.setCheckedItem(R.id.nav_list_city);
         setFragment(new CityListFragment());
     }
 
     private void showSettingFragment() {
+        navigationView.setCheckedItem(R.id.nav_settings);
         setFragment(new SettingsFragment());
     }
 
     private void setFragment(Fragment fragment) {
         getSupportFragmentManager()
                 .beginTransaction()
-//                .addToBackStack(null)
+                .addToBackStack(null)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .replace(R.id.frame_dynamic, fragment)
                 .commit();
@@ -241,53 +277,8 @@ public class MainActivity extends AppCompatActivity
     private void setObserveForModel() {
         modelData = ViewModelProviders.of(this).get(ViewModelData.class);
         modelData.getCity().observe(this, s -> {
-            colaps = findViewById(R.id.activity_collapsing);
-            colaps.setTitle(s);
-        });
-        modelData.getData().observe(this, wd -> {
-            TextView currentTemp = findViewById(R.id.currentTemp);
-            TextView tempDay = findViewById(R.id.tempDay);
-            TextView tempNight = findViewById(R.id.tempNight);
-            TextView currentDayWeek = findViewById(R.id.currentDayWeek);
-
-            currentTemp.setText(wd.getCurrent().getTemp().intValue() + CELCIA);
-            // TODO: 26.08.2020 отталкиваться от current.dt с Calendar
-            tempDay.setText(wd.getDaily().get(0).getTemp().getDay().intValue() + CELCIA);
-            tempNight.setText(wd.getDaily().get(0).getTemp().getNight().intValue() + CELCIA);
-            @SuppressLint("SimpleDateFormat")
-            SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE");
-            currentDayWeek.setText(dateFormat.format(wd.getCurrent().getDt()));
-
+            colapsCityName = findViewById(R.id.activity_collapsing);
+            colapsCityName.setTitle(s);
         });
     }
-
-    // TODO: 30.08.2020 перенести в CityListFragment
-    public void show_find_city(View view) {
-        LinearLayout llBottomSheet = findViewById(R.id.dialog_bottom_sheet);
-        BottomSheetBehavior<View> bottomSheetBehavior = BottomSheetBehavior.from(llBottomSheet);
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-
-        String[] city = getResources().getStringArray(R.array.city);
-        ArrayList<String> tempArray = new ArrayList<>(Arrays.asList(city));
-        initRecycleSearchCityList(tempArray, bottomSheetBehavior);
-    }
-
-    // TODO: 31.08.2020 почему не отображается список???
-    private void initRecycleSearchCityList(ArrayList<String> sourceData, BottomSheetBehavior<View> bottomSheetBehavior) {
-        RecyclerView recyclerView = findViewById(R.id.find_city_list);
-        recyclerView.setHasFixedSize(true);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-        AdapterSearchCityList adapter = new AdapterSearchCityList(sourceData);
-        recyclerView.setAdapter(adapter);
-
-        adapter.SetOnItemClickListener((view, position) -> {
-            TextView textView = view.findViewById(R.id.city_name);
-
-            modelData.setCity(textView.getText().toString());
-            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-
-        });
-    }
-
 }

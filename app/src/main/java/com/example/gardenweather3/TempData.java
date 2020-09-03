@@ -1,9 +1,10 @@
 package com.example.gardenweather3;
 
-import com.example.gardenweather3.model.WeatherData;
+import com.example.gardenweather3.modelCurrentWeatherData.CurrentWeatherData;
 
 public class TempData {
     private String tempStr;
+    private CurrentWeatherData weatherData;
 
     private TempData(){}
 
@@ -22,4 +23,11 @@ public class TempData {
         this.tempStr = tempStr;
     }
 
+    public CurrentWeatherData getWeatherData() {
+        return weatherData;
+    }
+
+    public void setWeatherData(CurrentWeatherData weatherData) {
+        this.weatherData = weatherData;
+    }
 }

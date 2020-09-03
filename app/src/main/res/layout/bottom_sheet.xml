@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/dialog_bottom_sheet"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorListSearchCity"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:id="@+id/dialog_bottom_sheet"
-    android:background="@color/colorListSearchCity"
     app:behavior_hideable="true"
     app:behavior_peekHeight="0dp"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
@@ -36,5 +36,6 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/find_city_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
+
 </LinearLayout>

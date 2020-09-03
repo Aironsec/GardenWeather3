@@ -1,10 +1,10 @@
 
-package com.example.gardenweather3.model;
+package com.example.gardenweather3.modelOneCallApi;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Weather_ {
+public class Weather__ {
 
     @SerializedName("id")
     @Expose
