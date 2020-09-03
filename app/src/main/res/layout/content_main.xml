@@ -96,7 +96,7 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/card_detail"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             app:cardCornerRadius="4dp"
@@ -107,7 +107,7 @@
             <LinearLayout
                 android:id="@+id/frame_dynamic"
                 android:name="androidx.navigation.fragment.NavHostFragment"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
 
                 app:layout_constraintLeft_toLeftOf="parent"

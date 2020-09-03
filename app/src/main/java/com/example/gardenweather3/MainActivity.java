@@ -279,6 +279,7 @@ public class MainActivity extends AppCompatActivity
         modelData.getCity().observe(this, s -> {
             colapsCityName = findViewById(R.id.activity_collapsing);
             colapsCityName.setTitle(s);
+            LoadWeatherService.startLoadWeatherService(MainActivity.this, s);
         });
     }
 }
