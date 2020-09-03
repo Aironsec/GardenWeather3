@@ -1,5 +1,5 @@
 
-package com.example.gardenweather3.model;
+package com.example.gardenweather3.modelOneCallApi;
 
 import java.util.List;
 import com.google.gson.annotations.Expose;

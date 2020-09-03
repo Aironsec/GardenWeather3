@@ -18,6 +18,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service
+            android:name=".LoadWeatherService"
+            android:exported="false">
+        </service>
+        <service
+            android:name=".ParsingWeatherService"
+            android:exported="false">
+        </service>
     </application>
 
 </manifest>

@@ -1,13 +1,12 @@
 
-package com.example.gardenweather3.model;
+package com.example.gardenweather3.modelOneCallApi;
 
 import java.util.List;
 
-import com.example.gardenweather3.TempData;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class WeatherData {
+public class WeatherDataOneCallApi {
 //    private static class WeatherDataHolder {
 //        private static final WeatherData instance = new WeatherData();
 //    }
