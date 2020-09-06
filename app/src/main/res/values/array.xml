@@ -1,17 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="city">
-        <item>Обнинск</item>
-        <item>Москва</item>
-        <item>Ялта</item>
-        <item>Севастополь</item>
-        <item>Ставрополь</item>
-        <item>Тула</item>
-        <item>Калуга</item>
-        <item>Ростов</item>
-        <item>Брацк</item>
-        <item>Киров</item>
-        <item>Уфа</item>
+        <item>Obninsk</item>
+        <item>Moskva</item>
+        <item>Rostov</item>
+        <item>Kaluga</item>
+        <item>Rostov na Donu</item>
+        <item>Bryansk</item>
+        <item>Ufa</item>
     </string-array>
     <array name="pictures">
         <item>@drawable/ic_sunny2</item>

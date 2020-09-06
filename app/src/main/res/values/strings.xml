@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">GardenWeather3</string>
     <string name="current_temp">10\u00B0</string>
-    <string name="current_city">Обнинск</string>
+    <string name="current_city">Obninsk</string>
     <string name="text_dynamic">text</string>
     <string name="image_desc">image</string>
 
@@ -20,5 +20,6 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="error_head">Ошибка соединения</string>
     <string name="error_msg">Не удачная попытка загрузить данные о погоде.\nХотите повторить?</string>
+    <string name="city_not_found">Город не найден!</string>
 
 </resources>

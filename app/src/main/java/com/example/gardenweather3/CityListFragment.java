@@ -1,11 +1,12 @@
 package com.example.gardenweather3;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -18,23 +19,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.regex.Pattern;
 
-interface AfterTextChangedWatcher extends TextWatcher {
-    default void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-    }
-
-    default void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-    }
+interface OnQueryTextChanged extends SearchView.OnQueryTextListener {
+    default boolean onQueryTextSubmit(String s) {return false;}
 }
 
 public class CityListFragment extends Fragment {
     private ViewModelData modelData;
-    private Pattern checkCity = Pattern.compile("[a-zA-Z]*");
+    private AdapterSearchCityList adapterSearchCityList;
+    private AdapterCityList adapterCityList;
+    private SearchView cityInput;
+    private String newCityName;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,20 +40,21 @@ public class CityListFragment extends Fragment {
         modelData = ViewModelProviders.of(requireActivity()).get(ViewModelData.class);
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     private void initRecycleCityList(DataSourceTextPicTemp sourceData, View view) {
         RecyclerView recyclerView = view.findViewById(R.id.recycler_view_city);
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
-        AdapterCityList adapter = new AdapterCityList(sourceData);
-        recyclerView.setAdapter(adapter);
+        adapterCityList = new AdapterCityList(sourceData);
+        recyclerView.setAdapter(adapterCityList);
 
         DividerItemDecoration itemDecoration = new DividerItemDecoration(requireActivity(), LinearLayoutManager.VERTICAL);
         itemDecoration.setDrawable(getResources().getDrawable(R.drawable.separator));
         recyclerView.addItemDecoration(itemDecoration);
 
         FragmentManager fragmentManager = getFragmentManager();
-        adapter.SetOnItemClickListener((view1, position) -> {
+        adapterCityList.SetOnItemClickListener((view1, position) -> {
             assert fragmentManager != null;
             fragmentManager.popBackStack();
             TextView textView = view1.findViewById(R.id.textView_city);
@@ -87,13 +86,15 @@ public class CityListFragment extends Fragment {
 
             String[] city = getResources().getStringArray(R.array.city);
             ArrayList<String> tempArray = new ArrayList<>(Arrays.asList(city));
+            cityInput = llBottomSheet.findViewById(R.id.inputCity);
             initRecycleSearchCityList(tempArray, bottomSheetBehavior);
+
+            cityInput.setOnQueryTextListener((OnQueryTextChanged) s -> {
+                adapterSearchCityList.getFilter().filter(s);
+                newCityName = s;
+                return false;
+            });
         });
-
-//        TextInputEditText textInput = view.findViewById(R.id.inputCity);
-//        textInput.addTextChangedListener(
-//                (AfterTextChangedWatcher) editable -> CityListFragment.this.validate(textInput, checkCity));
-
         return view;
     }
 
@@ -102,33 +103,21 @@ public class CityListFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
-        AdapterSearchCityList adapter = new AdapterSearchCityList(sourceData);
-        recyclerView.setAdapter(adapter);
+        adapterSearchCityList = new AdapterSearchCityList(sourceData);
+        recyclerView.setAdapter(adapterSearchCityList);
 
-        adapter.SetOnItemClickListener((view1, position) -> {
+
+        adapterSearchCityList.SetOnItemClickListener((view1, position) -> {
             TextView textView = view1.findViewById(R.id.city_name);
-
-            modelData.setCity(textView.getText().toString());
+            String s = textView.getText().toString();
+            if (s == "Добавить город") {
+                s = newCityName;
+                adapterCityList.addItem(newCityName);
+            }
+            modelData.setCity(s);
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 
         });
-    }
-
-    private void validate(TextView tv, Pattern check) {
-        String value = tv.getText().toString();
-        if (check.matcher(value).matches()) {
-            hideError(tv);
-        } else {
-            showError(tv);
-        }
-    }
-
-    private void showError(TextView view) {
-        view.setError("Только латинские буквы!!");
-    }
-
-    private void hideError(TextView view) {
-        view.setError(null);
     }
 
 }

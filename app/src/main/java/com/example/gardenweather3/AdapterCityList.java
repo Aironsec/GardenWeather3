@@ -17,6 +17,11 @@ public class AdapterCityList extends RecyclerView.Adapter<AdapterCityList.ViewHo
         this.dataSource = dataSource;
     }
 
+    public void addItem (String city){
+        dataSource.addItemTextPicTemp(city);
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
