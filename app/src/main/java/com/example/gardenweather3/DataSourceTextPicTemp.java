@@ -20,7 +20,7 @@ public class DataSourceTextPicTemp {
     public DataSourceTextPicTemp buildLineByClock() {
         int[] pic = getPicArr();
         for (int i = 0; i < CLOCK; i++) {
-            dataSource.add(new ItemTextPicTemp(i + "", pic[i], rnd(25) + "\u00B0"));
+            dataSource.add(new ItemTextPicTemp(i + "", pic[i], "--"));
         }
         return this;
     }
@@ -29,13 +29,17 @@ public class DataSourceTextPicTemp {
         int[] pic = getPicArr();
         String[] city = resources.getStringArray(R.array.city);
         for (int i = 0; i < city.length; i++) {
-            dataSource.add(new ItemTextPicTemp(city[i], pic[i], rnd(30) + "\u00B0"));
+            dataSource.add(new ItemTextPicTemp(city[i], pic[i], "--"));
         }
         return this;
     }
 
     public ItemTextPicTemp getItemTextPicTemp(int pos) {
         return dataSource.get(pos);
+    }
+
+    public void addItemTextPicTemp (String city) {
+        dataSource.add(new ItemTextPicTemp(city, getPicArr()[1], "--"));
     }
 
     public int size() {

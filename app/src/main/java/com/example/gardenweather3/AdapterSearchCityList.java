@@ -3,6 +3,8 @@ package com.example.gardenweather3;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -11,12 +13,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 
-public class AdapterSearchCityList extends RecyclerView.Adapter<AdapterSearchCityList.ViewHolder> {
+public class AdapterSearchCityList extends RecyclerView.Adapter<AdapterSearchCityList.ViewHolder> implements Filterable {
     private ArrayList<String> dataSource;
+    private ArrayList<String> dataSourceFull;
     private OnItemClickListener itemClickListener;
 
     public AdapterSearchCityList(ArrayList<String> dataSource) {
         this.dataSource = dataSource;
+        dataSourceFull = new ArrayList<>(dataSource);
     }
 
     @NonNull
@@ -36,6 +40,42 @@ public class AdapterSearchCityList extends RecyclerView.Adapter<AdapterSearchCit
     public int getItemCount() {
         return dataSource.size();
     }
+
+    @Override
+    public Filter getFilter() {
+        return dataSourceFilter;
+    }
+
+    private Filter dataSourceFilter = new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence charSequence) {
+            ArrayList<String> filteredData = new ArrayList<>();
+
+            if (charSequence == null || charSequence.length() == 0) {
+                filteredData.addAll(dataSourceFull);
+            } else {
+                String filterPattern = charSequence.toString().toLowerCase().trim();
+
+                for (String item: dataSourceFull) {
+                    if (item.toLowerCase().contains(filterPattern)){
+                        filteredData.add(item);
+                    }
+                }
+            }
+
+            FilterResults results = new FilterResults();
+            results.values = filteredData;
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+            dataSource.clear();
+            dataSource.addAll((ArrayList) filterResults.values);
+            if (getItemCount() == 0) dataSource.add("Добавить город");
+            notifyDataSetChanged();
+        }
+    };
 
     public interface OnItemClickListener {
         void onItemClick(View view, int position);
