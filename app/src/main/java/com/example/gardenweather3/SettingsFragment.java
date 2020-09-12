@@ -7,6 +7,8 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import java.util.Objects;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class SettingsFragment extends PreferenceFragmentCompat {
     private boolean chTheme;
     private  SharedPreferences sharedPref;

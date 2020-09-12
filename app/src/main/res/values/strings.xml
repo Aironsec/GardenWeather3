@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">GardenWeather3</string>
-    <string name="current_temp">10\u00B0</string>
-    <string name="current_city">Obninsk</string>
+    <string name="default_current_temp">--\u00B0</string>
+    <string name="default_current_city">--</string>
+    <string name="add_city">Добавить город</string>
     <string name="text_dynamic">text</string>
     <string name="image_desc">image</string>
 

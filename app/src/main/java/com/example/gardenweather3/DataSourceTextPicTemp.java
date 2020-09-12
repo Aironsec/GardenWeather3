@@ -17,6 +17,19 @@ public class DataSourceTextPicTemp {
         this.resources = resources;
     }
 
+    public void setDataSource(List<ItemTextPicTemp> dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    public void setDefaultCurrentWeather() {
+        if (dataSource.size() > 0) return;
+            List<ItemTextPicTemp> temps = new ArrayList<>();
+            temps.add(new ItemTextPicTemp(resources.getString(R.string.default_current_city)
+                    , R.drawable.ic_baseline_add_location_24
+                    , ""));
+            dataSource = temps;
+    }
+
     public DataSourceTextPicTemp buildLineByClock() {
         int[] pic = getPicArr();
         for (int i = 0; i < CLOCK; i++) {
@@ -26,11 +39,7 @@ public class DataSourceTextPicTemp {
     }
 
     public DataSourceTextPicTemp buildCityList() {
-        int[] pic = getPicArr();
-        String[] city = resources.getStringArray(R.array.city);
-        for (int i = 0; i < city.length; i++) {
-            dataSource.add(new ItemTextPicTemp(city[i], pic[i], "--"));
-        }
+        setDefaultCurrentWeather();
         return this;
     }
 
@@ -38,7 +47,8 @@ public class DataSourceTextPicTemp {
         return dataSource.get(pos);
     }
 
-    public void addItemTextPicTemp (String city) {
+    @SuppressLint("CheckResult")
+    public void addItemTextPicTemp(String city) {
         dataSource.add(new ItemTextPicTemp(city, getPicArr()[1], "--"));
     }
 
