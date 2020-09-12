@@ -22,22 +22,65 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 
 interface OnQueryTextChanged extends SearchView.OnQueryTextListener {
-    default boolean onQueryTextSubmit(String s) {return false;}
+    default boolean onQueryTextSubmit(String s) {
+        return false;
+    }
 }
 
 public class CityListFragment extends Fragment {
     private ViewModelData modelData;
     private AdapterSearchCityList adapterSearchCityList;
     private AdapterCityList adapterCityList;
+    private DataSourceTextPicTemp sourceData;
     private SearchView cityInput;
     private String newCityName;
+    private String addCity;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         modelData = ViewModelProviders.of(requireActivity()).get(ViewModelData.class);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_city_list, container, false);
+        addCity = getResources().getString(R.string.add_city);
+        sourceData = new DataSourceTextPicTemp(getResources());
+        initRecycleCityList(sourceData.buildCityList(), view);
+        return view;
+    }
+
+    @SuppressLint("CheckResult")
+    public void subscribeWeather() {
+        App.getInstance().getDb().getCityWithHistoryDao().loadCityWithHistory()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<List<CityWithHistory>>() {
+                    @Override
+                    public void accept(List<CityWithHistory> cityWithHistories) throws Exception {
+                        if (cityWithHistories.size() < 1) return;
+
+                        List<ItemTextPicTemp> temps = new ArrayList<>();
+
+                        for (CityWithHistory item : cityWithHistories) {
+                            String city = item.tableCity.cityName;
+                            int pic = R.drawable.ic_sunny2;
+                            String temp = Integer.toString(item.histories.get(0).temp);
+                            ItemTextPicTemp addItem = new ItemTextPicTemp(city, pic, temp);
+                            temps.add(addItem);
+                        }
+
+                        sourceData.setDataSource(temps);
+                        adapterCityList.notifyDataSetChanged();
+                    }
+                });
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -46,6 +89,7 @@ public class CityListFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
+        subscribeWeather();
         adapterCityList = new AdapterCityList(sourceData);
         recyclerView.setAdapter(adapterCityList);
 
@@ -53,15 +97,14 @@ public class CityListFragment extends Fragment {
         itemDecoration.setDrawable(getResources().getDrawable(R.drawable.separator));
         recyclerView.addItemDecoration(itemDecoration);
 
-        FragmentManager fragmentManager = getFragmentManager();
-        adapterCityList.SetOnItemClickListener((view1, position) -> {
-            assert fragmentManager != null;
-            fragmentManager.popBackStack();
-            TextView textView = view1.findViewById(R.id.textView_city);
+        adapterCityList.SetOnItemClickListenerItem((view1, position) -> {
+            TextView city = view1.findViewById(R.id.item_list_cites);
 
-            modelData.setCity(textView.getText().toString());
+            backFragment();
 
-            Snackbar.make(textView, "Город изменён", Snackbar.LENGTH_LONG)
+            modelData.setCity(city.getText().toString());
+
+            Snackbar.make(city, "Город изменён", Snackbar.LENGTH_LONG)
                     .setAction("Отменить",
                             v -> {
                                 TempData td = TempData.getInstance();
@@ -69,33 +112,30 @@ public class CityListFragment extends Fragment {
                             }).show();
 
         });
+        adapterCityList.SetOnItemClickListenerFooter(((view1, position) -> showBottomSheet()));
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_city_list, container, false);
+    private void backFragment() {
+        FragmentManager fragmentManager = getFragmentManager();
+        assert fragmentManager != null;
+        fragmentManager.popBackStack();
+    }
 
-        DataSourceTextPicTemp sourceData = new DataSourceTextPicTemp(getResources());
-        initRecycleCityList(sourceData.buildCityList(), view);
+    private void showBottomSheet() {
+        LinearLayout llBottomSheet = getActivity().findViewById(R.id.dialog_bottom_sheet);
+        BottomSheetBehavior<View> bottomSheetBehavior = BottomSheetBehavior.from(llBottomSheet);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
-        view.findViewById(R.id.show_bottom_sheet).setOnClickListener(view1 -> {
-            LinearLayout llBottomSheet = getActivity().findViewById(R.id.dialog_bottom_sheet);
-            BottomSheetBehavior<View> bottomSheetBehavior = BottomSheetBehavior.from(llBottomSheet);
-            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        String[] cities = getResources().getStringArray(R.array.city);
+        ArrayList<String> tempArray = new ArrayList<>(Arrays.asList(cities));
+        cityInput = llBottomSheet.findViewById(R.id.inputCity);
+        initRecycleSearchCityList(tempArray, bottomSheetBehavior);
 
-            String[] city = getResources().getStringArray(R.array.city);
-            ArrayList<String> tempArray = new ArrayList<>(Arrays.asList(city));
-            cityInput = llBottomSheet.findViewById(R.id.inputCity);
-            initRecycleSearchCityList(tempArray, bottomSheetBehavior);
-
-            cityInput.setOnQueryTextListener((OnQueryTextChanged) s -> {
-                adapterSearchCityList.getFilter().filter(s);
-                newCityName = s;
-                return false;
-            });
+        cityInput.setOnQueryTextListener((OnQueryTextChanged) s -> {
+            adapterSearchCityList.getFilter().filter(s);
+            newCityName = s;
+            return false;
         });
-        return view;
     }
 
     private void initRecycleSearchCityList(ArrayList<String> sourceData, BottomSheetBehavior<View> bottomSheetBehavior) {
@@ -106,17 +146,16 @@ public class CityListFragment extends Fragment {
         adapterSearchCityList = new AdapterSearchCityList(sourceData);
         recyclerView.setAdapter(adapterSearchCityList);
 
-
         adapterSearchCityList.SetOnItemClickListener((view1, position) -> {
             TextView textView = view1.findViewById(R.id.city_name);
             String s = textView.getText().toString();
-            if (s == "Добавить город") {
+            if (s.equals(addCity)) {
                 s = newCityName;
                 adapterCityList.addItem(newCityName);
             }
             modelData.setCity(s);
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-
+            backFragment();
         });
     }
 

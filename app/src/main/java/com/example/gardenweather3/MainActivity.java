@@ -30,17 +30,18 @@ import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity
         implements AppBarLayout.OnOffsetChangedListener {
     private static final int PERCENTAGE_TO_SHOW_IMAGE = 20;
+    private static final String SETTINGS_PREFERENCES = "com.example.gardenweather3_preferences";
+    private static final String CURRENT_CITY = "currentCity";
     private View mFab;
     private int mMaxScrollSize;
     private boolean mIsImageHidden;
@@ -49,7 +50,6 @@ public class MainActivity extends AppCompatActivity
     private final String CELCIA = "\u00B0";
     private NavigationView navigationView;
     private DrawerLayout drawer;
-    private OpenCurrentWeather openCurrentWeather;
     private final String METRIC = "metric";
     private TextView currentTemp;
     private TextView currentDayWeek;
@@ -61,8 +61,12 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initGui();
+
+        SharedPreferences sharedPref = getSharedPreferences(SETTINGS_PREFERENCES, MODE_PRIVATE);
+        loadPreferences(sharedPref);
+
         setObserveForModel();
-        setSharePreferences();
 
         Toolbar toolbar = findViewById(R.id.activity_toolbar);
         setSupportActionBar(toolbar);
@@ -85,13 +89,19 @@ public class MainActivity extends AppCompatActivity
         AppBarLayout appbar = findViewById(R.id.activity_appbar);
         appbar.addOnOffsetChangedListener(this);
 
-        initGui();
-        initRetrofit();
         requestRetrofit(colapsCityName.getTitle().toString());
+
 
         Picasso.get()
                 .load("https://live.staticflickr.com/65535/47980222552_abef406e4f_w_d.jpg")
                 .into(mainImage);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        SharedPreferences sharedPref = getSharedPreferences(SETTINGS_PREFERENCES, MODE_PRIVATE);
+        savePreferences(sharedPref);
     }
 
     @Override
@@ -146,31 +156,16 @@ public class MainActivity extends AppCompatActivity
         mainImage = findViewById(R.id.main_image);
     }
 
-    private void initRetrofit() {
-        Retrofit retrofit;
-        retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.openweathermap.org/") // Базовая часть
-                // адреса
-                // Конвертер, необходимый для преобразования JSON
-                // в объекты
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        // Создаём объект, при помощи которого будем выполнять запросы
-        openCurrentWeather = retrofit.create(OpenCurrentWeather.class);
-    }
-
     private void requestRetrofit(String city) {
-        openCurrentWeather.loadWeather(city,METRIC, BuildConfig.WEATHER_API_KEY)
+        NetworkService.getInstance()
+                .getWeatherApi()
+                .loadWeather(city,METRIC, BuildConfig.WEATHER_API_KEY)
                 .enqueue(new Callback<CurrentWeatherData>() {
-                    @SuppressLint("SetTextI18n")
                     @Override
                     public void onResponse(Call<CurrentWeatherData> call, Response<CurrentWeatherData> response) {
-                        if (response.body() != null) {
-                            Date date = new Date((long) response.body().getDt() * 1000);
-                            @SuppressLint("SimpleDateFormat")
-                            SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE");
-                            currentTemp.setText(response.body().getMain().getTemp().intValue() + CELCIA);
-                            currentDayWeek.setText(dateFormat.format(date));
+                        CurrentWeatherData result = response.body();
+                        if (result != null) {
+                            resultToDataBase(result);
                         }
                     }
 
@@ -181,6 +176,30 @@ public class MainActivity extends AppCompatActivity
                 });
     }
 
+    @SuppressLint("SetTextI18n")
+    private void resultToDataBase(CurrentWeatherData result) {
+        Date date = new Date((long) result.getDt() * 1000);
+        @SuppressLint("SimpleDateFormat")
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE");
+        currentTemp.setText(result.getMain().getTemp().intValue() + CELCIA);
+        currentDayWeek.setText(dateFormat.format(date));
+        double lon = result.getCoord().getLon();
+        double lat = result.getCoord().getLat();
+        int cityId = result.getId();
+        String cityName = result.getName();
+        WeatherDB db = App.getInstance().getDb();
+        CityWithHistoryDao dao = db.getCityWithHistoryDao();
+        TableCity tableCity = new TableCity();
+        TableHistory tableHistory = new TableHistory();
+        tableCity.cityId = cityId;
+        tableCity.cityName = cityName;
+        tableCity.lat = lat;
+        tableCity.lon = lon;
+        tableHistory.date = date.getTime();
+        tableHistory.temp = result.getMain().getTemp().intValue();
+        tableHistory.cityId = cityId;
+        new Thread(() -> dao.insertCityWithHistory(tableCity, tableHistory)).start();
+    }
 
     private void setOnClickForFab() {
         mFab.setOnClickListener(view -> {
@@ -258,11 +277,21 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    private void setSharePreferences() {
-        SharedPreferences sharedPref = getSharedPreferences("com.example.gardenweather3_preferences", MODE_PRIVATE);
+    private void loadPreferences(SharedPreferences sharedPref) {
         if (sharedPref.getBoolean("theme", false)) {
             setTheme(R.style.AppLiteTheme);
         }
+        colapsCityName.setTitle(sharedPref.getString(CURRENT_CITY, "Obninsk"));
+    }
+
+    private void savePreferences(SharedPreferences sharedPref) {
+        // Для сохранения настроек надо воспользоваться классом Editor
+        SharedPreferences.Editor editor = sharedPref.edit();
+        // Теперь устанавливаем значения в Editor...
+        editor.putString(CURRENT_CITY, colapsCityName.getTitle().toString());
+        // ...и сохраняем файл настроек
+        editor.apply();
+
     }
 
     @SuppressLint("SetTextI18n")

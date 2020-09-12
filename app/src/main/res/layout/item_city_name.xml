@@ -8,7 +8,7 @@
         android:id="@+id/city_name"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/current_city"
+        android:text="@string/default_current_city"
         android:padding="8dp"
         android:textSize="32dp"/>
 </LinearLayout>
