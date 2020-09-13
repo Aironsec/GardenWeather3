@@ -1,6 +1,9 @@
 package com.example.gardenweather3;
 
 import android.annotation.SuppressLint;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,7 +33,6 @@ import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 import retrofit2.Call;
@@ -51,6 +53,7 @@ public class MainActivity extends AppCompatActivity
     private NavigationView navigationView;
     private DrawerLayout drawer;
     private final String METRIC = "metric";
+    private String lang;
     private TextView currentTemp;
     private TextView currentDayWeek;
     private ImageView mainImage;
@@ -60,8 +63,9 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        initSettings();
         initGui();
+        initNotificationChannel();
 
         SharedPreferences sharedPref = getSharedPreferences(SETTINGS_PREFERENCES, MODE_PRIVATE);
         loadPreferences(sharedPref);
@@ -95,6 +99,20 @@ public class MainActivity extends AppCompatActivity
         Picasso.get()
                 .load("https://live.staticflickr.com/65535/47980222552_abef406e4f_w_d.jpg")
                 .into(mainImage);
+    }
+
+    private void initNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            int importance = NotificationManager.IMPORTANCE_LOW;
+            NotificationChannel channel = new NotificationChannel("2", "name", importance);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+
+    private void initSettings() {
+        lang = getString(R.string.lang);
     }
 
     @Override
@@ -159,7 +177,7 @@ public class MainActivity extends AppCompatActivity
     private void requestRetrofit(String city) {
         NetworkService.getInstance()
                 .getWeatherApi()
-                .loadWeather(city,METRIC, BuildConfig.WEATHER_API_KEY)
+                .loadWeather(city,METRIC, lang, BuildConfig.WEATHER_API_KEY)
                 .enqueue(new Callback<CurrentWeatherData>() {
                     @Override
                     public void onResponse(Call<CurrentWeatherData> call, Response<CurrentWeatherData> response) {
@@ -198,12 +216,13 @@ public class MainActivity extends AppCompatActivity
         tableHistory.date = date.getTime();
         tableHistory.temp = result.getMain().getTemp().intValue();
         tableHistory.cityId = cityId;
+        colapsCityName.setTitle(cityName);
+
         new Thread(() -> dao.insertCityWithHistory(tableCity, tableHistory)).start();
     }
 
     private void setOnClickForFab() {
         mFab.setOnClickListener(view -> {
-            colapsCityName = findViewById(R.id.activity_collapsing);
             TempData td = TempData.getInstance();
             td.setTempStr(Objects.requireNonNull(colapsCityName.getTitle()).toString());
             showCityListFragment();
@@ -298,9 +317,7 @@ public class MainActivity extends AppCompatActivity
     private void setObserveForModel() {
         modelData = ViewModelProviders.of(this).get(ViewModelData.class);
         modelData.getCity().observe(this, s -> {
-            colapsCityName = findViewById(R.id.activity_collapsing);
             colapsCityName.setTitle(s);
-
             requestRetrofit(s);
         });
     }
