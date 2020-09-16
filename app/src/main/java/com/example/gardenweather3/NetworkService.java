@@ -26,7 +26,11 @@ public class NetworkService {
     }
 
     // Создаём объект, при помощи которого будем выполнять запросы
-    public OpenCurrentWeather getWeatherApi() {
-        return retrofit.create(OpenCurrentWeather.class);
+    public OpenNameCityWeather getWeatherCity() {
+        return retrofit.create(OpenNameCityWeather.class);
+    }
+
+    public OpenCoordinatesWeather getWeatherCoordinates() {
+        return retrofit.create(OpenCoordinatesWeather.class);
     }
 }

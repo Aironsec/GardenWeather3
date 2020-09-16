@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "470652354310",
+    "firebase_url": "https://gardenweather3.firebaseio.com",
+    "project_id": "gardenweather3",
+    "storage_bucket": "gardenweather3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:470652354310:android:b410dfd49eb23bcdf32887",
+        "android_client_info": {
+          "package_name": "com.example.gardenweather3"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "470652354310-hme6fmtd2r157jo55jcjf13fcg6sv0c8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCp-ChJC5lybter4Pcr6OzhwQyx1DqrFdU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "470652354310-hme6fmtd2r157jo55jcjf13fcg6sv0c8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -2,25 +2,30 @@
     <string name="app_name">GardenWeather3</string>
     <string name="default_current_temp">--\u00B0</string>
     <string name="default_current_city">--</string>
-    <string name="add_city">Добавить город</string>
+    <string name="add_city">Add city</string>
     <string name="text_dynamic">text</string>
     <string name="image_desc">image</string>
+    <string name="lang">en</string>
 
-    <string name="locate_title">Использовать GPS/Глонас</string>
-    <string name="attachment_summary_on">Город определяется автоматически</string>
-    <string name="attachment_summary_off">Город не будет определяться автоматически</string>
-    <string name="messages_add">Дополнительно</string>
-    <string name="findCity">Поиск города</string>
-    <string name="current_week">Понедельник</string>
-    <string name="settings">Настройки</string>
-    <string name="list_city">Города</string>
+    <string name="locate_title">Use GPS / Glonas</string>
+    <string name="attachment_summary_on">The city is determined automatically</string>
+    <string name="attachment_summary_off">The city will not be detected automatically</string>
+    <string name="messages_add">Additionally</string>
+    <string name="findCity">City search</string>
+    <string name="current_week">Monday</string>
+    <string name="settings">Settings</string>
+    <string name="list_city">Cities</string>
     <string name="nav_header_desc">Navigation header</string>
-    <string name="author">Сергей Ткаченко</string>
-    <string name="weather">Погода</string>
+    <string name="author">Sergey Tkachenko</string>
+    <string name="weather">Weather</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="error_head">Ошибка соединения</string>
-    <string name="error_msg">Не удачная попытка загрузить данные о погоде.\nХотите повторить?</string>
-    <string name="city_not_found">Город не найден!</string>
+    <string name="error_msg">Unsuccessful attempt to download weather data.\nWant to repeat?</string>
+    <string name="city_not_found">City not found!</string>
+    <string name="receiver_check_wifi_text">Фая, нет WI-FI</string>
+    <string name="receiver_check_wifi_title">Проверка WI-FI</string>
+    <string name="current_locate_weather">Weather is here</string>
+    <string name="current_coordinates">Current position</string>
 
 </resources>

@@ -1,9 +1,19 @@
 package com.example.gardenweather3;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,6 +25,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -23,14 +34,23 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.example.gardenweather3.modelCurrentWeatherData.CurrentWeatherData;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 import retrofit2.Call;
@@ -38,10 +58,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity
-        implements AppBarLayout.OnOffsetChangedListener {
+        implements AppBarLayout.OnOffsetChangedListener, OnMapReadyCallback {
     private static final int PERCENTAGE_TO_SHOW_IMAGE = 20;
     private static final String SETTINGS_PREFERENCES = "com.example.gardenweather3_preferences";
     private static final String CURRENT_CITY = "currentCity";
+    private static final CharSequence STARTURLIMAGE = "https://openweathermap.org/img/wn/";
+    private static final CharSequence ANDURLIMAGE = "@2x.png";
     private View mFab;
     private int mMaxScrollSize;
     private boolean mIsImageHidden;
@@ -51,20 +73,25 @@ public class MainActivity extends AppCompatActivity
     private NavigationView navigationView;
     private DrawerLayout drawer;
     private final String METRIC = "metric";
+    private String lang;
     private TextView currentTemp;
     private TextView currentDayWeek;
-    private ImageView mainImage;
+    private ImageView conditionImage;
+    private String token;
+    private GoogleMap mMap;
+    private static final int PERMISSION_REQUEST_CODE = 10;
+    private double lat;
+    private double lon;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        initSettings();
         initGui();
-
-        SharedPreferences sharedPref = getSharedPreferences(SETTINGS_PREFERENCES, MODE_PRIVATE);
-        loadPreferences(sharedPref);
+        initGetToken();
+        initNotificationChannel();
 
         setObserveForModel();
 
@@ -89,19 +116,47 @@ public class MainActivity extends AppCompatActivity
         AppBarLayout appbar = findViewById(R.id.activity_appbar);
         appbar.addOnOffsetChangedListener(this);
 
-        requestRetrofit(colapsCityName.getTitle().toString());
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
+    }
 
 
-        Picasso.get()
-                .load("https://live.staticflickr.com/65535/47980222552_abef406e4f_w_d.jpg")
-                .into(mainImage);
+    private void initGetToken() {
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w("PushMessage", "getInstanceId failed", task.getException());
+                            return;
+                        }
+
+                        // Получить новый токен идентификатора экземпляра
+                        token = task.getResult().getToken();
+                        Log.d("Token: ", token);
+                    }
+                });
+    }
+
+    private void initNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            int importance = NotificationManager.IMPORTANCE_LOW;
+            NotificationChannel channel = new NotificationChannel("2", "name", importance);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    private void initSettings() {
+        lang = getString(R.string.lang);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        SharedPreferences sharedPref = getSharedPreferences(SETTINGS_PREFERENCES, MODE_PRIVATE);
-        savePreferences(sharedPref);
+        savePreferences();
     }
 
     @Override
@@ -142,24 +197,48 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
+        Fragment dynamicFragment = getSupportFragmentManager().findFragmentById(R.id.frame_dynamic);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
+        } else if (!(dynamicFragment instanceof MainFragment))
+            // TODO: 14.09.2020 вызвать функцию фрагмента ((MainFragment) fragment).func;
+            showMainFragment();
+        else
             super.onBackPressed();
-        }
     }
 
-    private void initGui(){
+    private void initGui() {
         currentTemp = findViewById(R.id.currentTemp);
         currentDayWeek = findViewById(R.id.currentDayWeek);
         colapsCityName = findViewById(R.id.activity_collapsing);
-        mainImage = findViewById(R.id.main_image);
+        colapsCityName.setExpandedTitleColor(Color.BLACK);
+        conditionImage = findViewById(R.id.condition_image);
     }
 
-    private void requestRetrofit(String city) {
+    private void requestRetrofitCityName(String city) {
         NetworkService.getInstance()
-                .getWeatherApi()
-                .loadWeather(city,METRIC, BuildConfig.WEATHER_API_KEY)
+                .getWeatherCity()
+                .loadWeather(city, METRIC, lang, BuildConfig.WEATHER_API_KEY)
+                .enqueue(new Callback<CurrentWeatherData>() {
+                    @Override
+                    public void onResponse(Call<CurrentWeatherData> call, Response<CurrentWeatherData> response) {
+                        CurrentWeatherData result = response.body();
+                        if (result != null) {
+                            resultToDataBase(result);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<CurrentWeatherData> call, Throwable t) {
+                        colapsCityName.setTitle(getString(R.string.city_not_found));
+                    }
+                });
+    }
+
+    private void requestRetrofitCoordinates(double lat, double lon) {
+        NetworkService.getInstance()
+                .getWeatherCoordinates()
+                .loadWeather(lat, lon, METRIC, lang, BuildConfig.WEATHER_API_KEY)
                 .enqueue(new Callback<CurrentWeatherData>() {
                     @Override
                     public void onResponse(Call<CurrentWeatherData> call, Response<CurrentWeatherData> response) {
@@ -187,6 +266,7 @@ public class MainActivity extends AppCompatActivity
         double lat = result.getCoord().getLat();
         int cityId = result.getId();
         String cityName = result.getName();
+        String condition = result.getWeather().get(0).getIcon();
         WeatherDB db = App.getInstance().getDb();
         CityWithHistoryDao dao = db.getCityWithHistoryDao();
         TableCity tableCity = new TableCity();
@@ -198,12 +278,21 @@ public class MainActivity extends AppCompatActivity
         tableHistory.date = date.getTime();
         tableHistory.temp = result.getMain().getTemp().intValue();
         tableHistory.cityId = cityId;
+
+        LatLng target = new LatLng(lat, lon);
+        mMap.addMarker(new MarkerOptions().position(target).title(getString(R.string.current_coordinates)));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(target, (float) 12));
+
+        colapsCityName.setTitle(cityName);
+        Picasso.get()
+                .load(STARTURLIMAGE + condition + ANDURLIMAGE)
+                .into(conditionImage);
+        savePreferences();
         new Thread(() -> dao.insertCityWithHistory(tableCity, tableHistory)).start();
     }
 
     private void setOnClickForFab() {
         mFab.setOnClickListener(view -> {
-            colapsCityName = findViewById(R.id.activity_collapsing);
             TempData td = TempData.getInstance();
             td.setTempStr(Objects.requireNonNull(colapsCityName.getTitle()).toString());
             showCityListFragment();
@@ -255,7 +344,6 @@ public class MainActivity extends AppCompatActivity
     private void setFragment(Fragment fragment) {
         getSupportFragmentManager()
                 .beginTransaction()
-                .addToBackStack(null)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .replace(R.id.frame_dynamic, fragment)
                 .commit();
@@ -273,18 +361,29 @@ public class MainActivity extends AppCompatActivity
                 showCityListFragment();
                 break;
             }
+            case R.id.action_map_location: {
+                requestPemissions();
+                break;
+            }
         }
 
     }
 
-    private void loadPreferences(SharedPreferences sharedPref) {
+    private void loadPreferences() {
+        SharedPreferences sharedPref = getSharedPreferences(SETTINGS_PREFERENCES, MODE_PRIVATE);
         if (sharedPref.getBoolean("theme", false)) {
             setTheme(R.style.AppLiteTheme);
         }
-        colapsCityName.setTitle(sharedPref.getString(CURRENT_CITY, "Obninsk"));
+        String s = sharedPref.getString(CURRENT_CITY, "no_city");
+        if (s.equals("no_city")) {
+            requestPemissions();
+        }else {
+            requestRetrofitCityName(s);
+        }
     }
 
-    private void savePreferences(SharedPreferences sharedPref) {
+    private void savePreferences() {
+        SharedPreferences sharedPref = getSharedPreferences(SETTINGS_PREFERENCES, MODE_PRIVATE);
         // Для сохранения настроек надо воспользоваться классом Editor
         SharedPreferences.Editor editor = sharedPref.edit();
         // Теперь устанавливаем значения в Editor...
@@ -297,11 +396,89 @@ public class MainActivity extends AppCompatActivity
     @SuppressLint("SetTextI18n")
     private void setObserveForModel() {
         modelData = ViewModelProviders.of(this).get(ViewModelData.class);
-        modelData.getCity().observe(this, s -> {
-            colapsCityName = findViewById(R.id.activity_collapsing);
-            colapsCityName.setTitle(s);
+        modelData.getCity().observe(this, this::requestRetrofitCityName);
+    }
 
-            requestRetrofit(s);
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+
+        loadPreferences();
+
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                requestRetrofitCoordinates(latLng.latitude, latLng.longitude);
+            }
         });
     }
+
+    // Запрашиваем Permission’ы
+    private void requestPemissions() {
+        // Проверим, есть ли Permission’ы, и если их нет, запрашиваем их у
+        // пользователя
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            // Запрашиваем координаты
+            requestLocation();
+        } else {
+            // Permission’ов нет, запрашиваем их у пользователя
+            requestLocationPermissions();
+        }
+    }
+
+    // Запрашиваем координаты
+    private void requestLocation() {
+        // Если Permission’а всё- таки нет, просто выходим: приложение не имеет
+        // смысла
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            return;
+        // Получаем менеджер геолокаций
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+
+        // Получаем наиболее подходящий провайдер геолокации по критериям.
+        // Но определить, какой провайдер использовать, можно и самостоятельно.
+        // В основном используются LocationManager.GPS_PROVIDER или
+        // LocationManager.NETWORK_PROVIDER, но можно использовать и
+        // LocationManager.PASSIVE_PROVIDER - для получения координат в
+        // пассивном режиме
+        String provider = locationManager.getBestProvider(criteria, true);
+        if (provider != null) {
+            final Location loc = locationManager.getLastKnownLocation(provider);
+
+            if (loc != null) {
+                requestRetrofitCoordinates(loc.getLatitude(), loc.getLongitude());
+            }
+        }
+    }
+
+    // Запрашиваем Permission’ы для геолокации
+    private void requestLocationPermissions() {
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CALL_PHONE)) {
+            // Запрашиваем эти два Permission’а у пользователя
+            ActivityCompat.requestPermissions(this,
+                    new String[]{
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                    },
+                    PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PERMISSION_REQUEST_CODE) {   // Запрошенный нами
+            // Permission
+            if (grantResults.length == 2 &&
+                    (grantResults[0] == PackageManager.PERMISSION_GRANTED || grantResults[1] == PackageManager.PERMISSION_GRANTED)) {
+                // Все препоны пройдены и пермиссия дана
+                // Запросим координаты
+                requestLocation();
+            }
+        }
+    }
+
 }

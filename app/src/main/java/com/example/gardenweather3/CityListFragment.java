@@ -38,7 +38,6 @@ public class CityListFragment extends Fragment {
     private AdapterSearchCityList adapterSearchCityList;
     private AdapterCityList adapterCityList;
     private DataSourceTextPicTemp sourceData;
-    private SearchView cityInput;
     private String newCityName;
     private String addCity;
 
@@ -59,7 +58,7 @@ public class CityListFragment extends Fragment {
     }
 
     @SuppressLint("CheckResult")
-    public void subscribeWeather() {
+    public void subscribeToWeather() {
         App.getInstance().getDb().getCityWithHistoryDao().loadCityWithHistory()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<List<CityWithHistory>>() {
@@ -89,7 +88,7 @@ public class CityListFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
-        subscribeWeather();
+        subscribeToWeather();
         adapterCityList = new AdapterCityList(sourceData);
         recyclerView.setAdapter(adapterCityList);
 
@@ -128,7 +127,7 @@ public class CityListFragment extends Fragment {
 
         String[] cities = getResources().getStringArray(R.array.city);
         ArrayList<String> tempArray = new ArrayList<>(Arrays.asList(cities));
-        cityInput = llBottomSheet.findViewById(R.id.inputCity);
+        SearchView cityInput = llBottomSheet.findViewById(R.id.inputCity);
         initRecycleSearchCityList(tempArray, bottomSheetBehavior);
 
         cityInput.setOnQueryTextListener((OnQueryTextChanged) s -> {
