@@ -42,11 +42,11 @@
                     tools:ignore="UseCompoundDrawables">
 
                     <ImageView
-                        android:id="@+id/imageView"
+                        android:id="@+id/condition_image"
                         android:layout_width="100dp"
                         android:layout_height="100dp"
                         android:contentDescription="@string/image_desc"
-                        app:srcCompat="@drawable/ic_sunny2" />
+                        app:srcCompat="@drawable/ic_sunny2"/>
 
                     <TextView
                         android:id="@+id/currentTemp"

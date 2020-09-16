@@ -25,5 +25,7 @@
     <string name="city_not_found">City not found!</string>
     <string name="receiver_check_wifi_text">Фая, нет WI-FI</string>
     <string name="receiver_check_wifi_title">Проверка WI-FI</string>
+    <string name="current_locate_weather">Weather is here</string>
+    <string name="current_coordinates">Current position</string>
 
 </resources>
