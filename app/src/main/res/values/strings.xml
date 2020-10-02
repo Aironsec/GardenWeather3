@@ -2,12 +2,12 @@
     <string name="app_name">GardenWeather3</string>
     <string name="default_current_temp">--\u00B0</string>
     <string name="default_current_city">--</string>
-    <string name="add_city">Add city</string>
     <string name="text_dynamic">text</string>
     <string name="image_desc">image</string>
     <string name="lang">en</string>
+    <string name="metric">imperial</string>
 
-    <string name="locate_title">Use GPS / Glonas</string>
+    <string name="locate_title">GPS</string>
     <string name="attachment_summary_on">The city is determined automatically</string>
     <string name="attachment_summary_off">The city will not be detected automatically</string>
     <string name="messages_add">Additionally</string>
@@ -23,9 +23,16 @@
     <string name="error_head">Ошибка соединения</string>
     <string name="error_msg">Unsuccessful attempt to download weather data.\nWant to repeat?</string>
     <string name="city_not_found">City not found!</string>
-    <string name="receiver_check_wifi_text">Фая, нет WI-FI</string>
+    <string name="receiver_check_wifi_text">Faya, no WI-FI</string>
     <string name="receiver_check_wifi_title">Проверка WI-FI</string>
-    <string name="current_locate_weather">Weather is here</string>
+    <string name="current_locate_weather">The weather is here and now</string>
     <string name="current_coordinates">Current position</string>
+    <string name="add_city">Add city</string>
+    <string name="update_city_on">Weather update every hour</string>
+    <string name="title_update_city">Auto update</string>
+    <string name="theme_on">Light theme</string>
+    <string name="theme_off">Dark theme</string>
+    <string name="commercial_release">Available in commercial release</string>
+    <string name="sign_out">Sign out</string>
 
 </resources>

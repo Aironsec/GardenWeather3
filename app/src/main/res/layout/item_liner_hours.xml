@@ -13,7 +13,7 @@
     <ImageView
         android:id="@+id/imageView1"
         style="@style/style_image"
-        app:srcCompat="@drawable/ic_sunny2"
+        app:srcCompat="@drawable/ic_sunny"
         android:contentDescription="@string/image_desc" />
 
     <TextView

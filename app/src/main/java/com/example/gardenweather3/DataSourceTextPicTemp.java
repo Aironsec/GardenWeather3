@@ -4,21 +4,33 @@ import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 
+import com.example.gardenweather3.db.TableCity;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class DataSourceTextPicTemp {
     private final int CLOCK = 24;
     private List<ItemTextPicTemp> dataSource;
+    private List<TableCity> dataSourceObject;
     private Resources resources;
 
     public DataSourceTextPicTemp(Resources resources) {
         dataSource = new ArrayList<>();
+        dataSourceObject = new ArrayList<>();
         this.resources = resources;
     }
 
     public void setDataSource(List<ItemTextPicTemp> dataSource) {
         this.dataSource = dataSource;
+    }
+
+    public void setDataSourceObject(List<TableCity> tableCities) {
+        this.dataSourceObject = tableCities;
+    }
+
+    public List<ItemTextPicTemp> getDataSource() {
+        return dataSource;
     }
 
     public void setDefaultCurrentWeather() {
@@ -31,10 +43,7 @@ public class DataSourceTextPicTemp {
     }
 
     public DataSourceTextPicTemp buildLineByClock() {
-        int[] pic = getPicArr();
-        for (int i = 0; i < CLOCK; i++) {
-            dataSource.add(new ItemTextPicTemp(i + "", pic[i], "--"));
-        }
+        setDefaultCurrentWeather();
         return this;
     }
 
@@ -47,9 +56,8 @@ public class DataSourceTextPicTemp {
         return dataSource.get(pos);
     }
 
-    @SuppressLint("CheckResult")
-    public void addItemTextPicTemp(String city) {
-        dataSource.add(new ItemTextPicTemp(city, getPicArr()[1], "--"));
+    public TableCity getItemCityObject (int pos) {
+        return dataSourceObject.get(pos);
     }
 
     public int size() {

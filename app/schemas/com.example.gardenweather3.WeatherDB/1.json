@@ -1,0 +1,240 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "53a38a004c4ed150e52b162cb463a17e",
+    "entities": [
+      {
+        "tableName": "TableCity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`city_name` TEXT NOT NULL, `dt` INTEGER NOT NULL, `temp_current` INTEGER NOT NULL, `id_condition` INTEGER NOT NULL, `icon` TEXT, `lat` REAL NOT NULL, `lon` REAL NOT NULL, `time_update` INTEGER NOT NULL, PRIMARY KEY(`city_name`))",
+        "fields": [
+          {
+            "fieldPath": "cityName",
+            "columnName": "city_name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dt",
+            "columnName": "dt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tempCurrent",
+            "columnName": "temp_current",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idCondition",
+            "columnName": "id_condition",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "icon",
+            "columnName": "icon",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "lat",
+            "columnName": "lat",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lon",
+            "columnName": "lon",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timeUpdate",
+            "columnName": "time_update",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "city_name"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_TableCity_city_name",
+            "unique": false,
+            "columnNames": [
+              "city_name"
+            ],
+            "createSql": "CREATE  INDEX `index_TableCity_city_name` ON `${TABLE_NAME}` (`city_name`)"
+          },
+          {
+            "name": "index_TableCity_dt",
+            "unique": false,
+            "columnNames": [
+              "dt"
+            ],
+            "createSql": "CREATE  INDEX `index_TableCity_dt` ON `${TABLE_NAME}` (`dt`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "TableHours",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `dt` INTEGER NOT NULL, `temp_hour` INTEGER NOT NULL, `id_condition` INTEGER NOT NULL, `icon` TEXT, `city_name_fk` TEXT, FOREIGN KEY(`city_name_fk`) REFERENCES `TableCity`(`city_name`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dt",
+            "columnName": "dt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tempHour",
+            "columnName": "temp_hour",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idCondition",
+            "columnName": "id_condition",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "icon",
+            "columnName": "icon",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cityNameFk",
+            "columnName": "city_name_fk",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_TableHours_city_name_fk",
+            "unique": false,
+            "columnNames": [
+              "city_name_fk"
+            ],
+            "createSql": "CREATE  INDEX `index_TableHours_city_name_fk` ON `${TABLE_NAME}` (`city_name_fk`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "TableCity",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "city_name_fk"
+            ],
+            "referencedColumns": [
+              "city_name"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "TableDaily",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `dt` INTEGER NOT NULL, `temp_day` INTEGER NOT NULL, `temp_night` INTEGER NOT NULL, `id_condition` INTEGER NOT NULL, `icon` TEXT, `city_name_fk` TEXT, FOREIGN KEY(`city_name_fk`) REFERENCES `TableCity`(`city_name`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dt",
+            "columnName": "dt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tempDay",
+            "columnName": "temp_day",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tempNight",
+            "columnName": "temp_night",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idCondition",
+            "columnName": "id_condition",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "icon",
+            "columnName": "icon",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cityNameFk",
+            "columnName": "city_name_fk",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_TableDaily_city_name_fk",
+            "unique": false,
+            "columnNames": [
+              "city_name_fk"
+            ],
+            "createSql": "CREATE  INDEX `index_TableDaily_city_name_fk` ON `${TABLE_NAME}` (`city_name_fk`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "TableCity",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "city_name_fk"
+            ],
+            "referencedColumns": [
+              "city_name"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"53a38a004c4ed150e52b162cb463a17e\")"
+    ]
+  }
+}

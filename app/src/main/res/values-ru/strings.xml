@@ -2,6 +2,13 @@
 <resources>
     <string name="receiver_check_wifi_text">Фая, нет WI-FI</string>
     <string name="receiver_check_wifi_title">Проверка WI-FI</string>
-    <string name="current_locate_weather">Погода здесь</string>
+    <string name="current_locate_weather">Погода здесь и сейчас</string>
     <string name="current_coordinates">Текущая позиция</string>
+    <string name="metric">metric</string>
+    <string name="update_city_on">Обновление погоды каждый час</string>
+    <string name="title_update_city">Авто-обновление</string>
+    <string name="theme_on">Светлая тема</string>
+    <string name="theme_off">Тёмная тема</string>
+    <string name="commercial_release">Доступно в комерческом релизе</string>
+    <string name="sign_out">Выйти</string>
 </resources>

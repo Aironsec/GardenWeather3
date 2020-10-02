@@ -46,7 +46,7 @@
                         android:layout_width="100dp"
                         android:layout_height="100dp"
                         android:contentDescription="@string/image_desc"
-                        app:srcCompat="@drawable/ic_sunny2"/>
+                        app:srcCompat="@drawable/ic_01d"/>
 
                     <TextView
                         android:id="@+id/currentTemp"
