@@ -1,0 +1,28 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory>
+        <SwitchPreferenceCompat
+            app:key="locate"
+            app:defaultValue="false"
+            app:enabled="false"
+            app:summaryOff="@string/attachment_summary_off"
+            app:summaryOn="@string/attachment_summary_on"
+            app:title="@string/locate_title" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory>
+        <SwitchPreferenceCompat
+            app:key="updateCity"
+            app:defaultValue="false"
+            app:title="@string/title_update_city"
+            app:summaryOn="@string/update_city_on"/>
+
+        <SwitchPreferenceCompat
+            app:key="theme"
+            app:title="Тема"
+            app:summaryOn="@string/theme_on"
+            app:summaryOff="@string/theme_off"/>
+    </PreferenceCategory>
+
+</PreferenceScreen>

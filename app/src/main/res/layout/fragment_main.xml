@@ -12,8 +12,32 @@
         android:layout_marginBottom="8dp" />
 
     <CalendarView
-        android:id="@+id/calendarView3"
+        android:id="@+id/calendarWeather"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/user_token"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="email"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/sing_out_button"
+            android:text="@string/sign_out"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/sign_in_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 </LinearLayout>

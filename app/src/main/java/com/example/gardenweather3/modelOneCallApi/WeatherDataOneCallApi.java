@@ -7,12 +7,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 public class WeatherDataOneCallApi {
-//    private static class WeatherDataHolder {
-//        private static final WeatherData instance = new WeatherData();
-//    }
-//    public static WeatherData getInstance() {
-//        return WeatherData.WeatherDataHolder.instance;
-//    }
+
     @SerializedName("lat")
     @Expose
     private Double lat;

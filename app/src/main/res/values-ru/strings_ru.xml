@@ -8,7 +8,7 @@
     <string name="image_desc">image</string>
     <string name="lang">ru</string>
 
-    <string name="locate_title">Использовать GPS/Глонас</string>
+    <string name="locate_title">GPS/Глонас</string>
     <string name="attachment_summary_on">Город определяется автоматически</string>
     <string name="attachment_summary_off">Город не будет определяться автоматически</string>
     <string name="messages_add">Дополнительно</string>

@@ -10,7 +10,7 @@
         <item>Ufa</item>
     </string-array>
     <array name="pictures">
-        <item>@drawable/ic_sunny2</item>
-        <item>@drawable/ic_cloudy2</item>
+        <item>@drawable/ic_sunny</item>
+        <item>@drawable/ic_cloudy</item>
     </array>
 </resources>

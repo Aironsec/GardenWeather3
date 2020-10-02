@@ -8,9 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:470652354310:android:b410dfd49eb23bcdf32887",
+        "mobilesdk_app_id": "1:470652354310:android:f6dc5f5a9a4ce422f32887",
         "android_client_info": {
-          "package_name": "com.example.gardenweather3"
+          "package_name": "com.example.gardenweather3.demo.debug"
         }
       },
       "oauth_client": [
@@ -21,7 +21,210 @@
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCp-ChJC5lybter4Pcr6OzhwQyx1DqrFdU"
+          "current_key": "AIzaSyBon1f07cxWL1oRjZD2_NmfccRAnPhQde0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "470652354310-hme6fmtd2r157jo55jcjf13fcg6sv0c8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:470652354310:android:9e342014c31733ddf32887",
+        "android_client_info": {
+          "package_name": "com.example.gardenweather3.free.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "470652354310-hme6fmtd2r157jo55jcjf13fcg6sv0c8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBon1f07cxWL1oRjZD2_NmfccRAnPhQde0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "470652354310-hme6fmtd2r157jo55jcjf13fcg6sv0c8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:470652354310:android:cffb037fae2e4fbff32887",
+        "android_client_info": {
+          "package_name": "com.example.gardenweather3.free.debugStaging"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "470652354310-hme6fmtd2r157jo55jcjf13fcg6sv0c8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBon1f07cxWL1oRjZD2_NmfccRAnPhQde0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "470652354310-hme6fmtd2r157jo55jcjf13fcg6sv0c8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:470652354310:android:5f4349d92ee80d28f32887",
+        "android_client_info": {
+          "package_name": "com.example.gardenweather3.free.demo.debugStaging"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "470652354310-hme6fmtd2r157jo55jcjf13fcg6sv0c8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBon1f07cxWL1oRjZD2_NmfccRAnPhQde0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "470652354310-hme6fmtd2r157jo55jcjf13fcg6sv0c8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:470652354310:android:f3453b1ebe0430bff32887",
+        "android_client_info": {
+          "package_name": "com.example.gardenweather3.free.master.debugStaging"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "470652354310-hme6fmtd2r157jo55jcjf13fcg6sv0c8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBon1f07cxWL1oRjZD2_NmfccRAnPhQde0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "470652354310-hme6fmtd2r157jo55jcjf13fcg6sv0c8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:470652354310:android:fb7423e00d78565ff32887",
+        "android_client_info": {
+          "package_name": "com.example.gardenweather3.master.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "470652354310-hme6fmtd2r157jo55jcjf13fcg6sv0c8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBon1f07cxWL1oRjZD2_NmfccRAnPhQde0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "470652354310-hme6fmtd2r157jo55jcjf13fcg6sv0c8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:470652354310:android:d3323606fd06f471f32887",
+        "android_client_info": {
+          "package_name": "com.example.gardenweather3.pro.debugStaging"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "470652354310-hme6fmtd2r157jo55jcjf13fcg6sv0c8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBon1f07cxWL1oRjZD2_NmfccRAnPhQde0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "470652354310-hme6fmtd2r157jo55jcjf13fcg6sv0c8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:470652354310:android:0247d206e6804ef1f32887",
+        "android_client_info": {
+          "package_name": "com.example.gardenweather3.pro.master.debugStaging"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "470652354310-hme6fmtd2r157jo55jcjf13fcg6sv0c8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBon1f07cxWL1oRjZD2_NmfccRAnPhQde0"
         }
       ],
       "services": {
